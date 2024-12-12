@@ -14,6 +14,25 @@ export default [
   js.configs.recommended,
   ...pluginVue.configs['flat/essential'],
 
+  // Configuration for TypeScript files
+  {
+    files: ['**/*.{ts,tsx,mts,cts}'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      ...tseslint.configs['recommended'].rules,
+    },
+  },
+
+  // Configuration for Vue files
   {
     files: ['**/*.vue'],
     languageOptions: {

@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import Button from './components/ui/button/Button.vue';
+import MainLayout from '@/components/layout/index.vue'
 </script>
 
 <template>
   <main>
-    <Button>Test</Button>
+    <MainLayout>
+    <template #content>
+      <section class="space-y-4 space-x-4 bg-white rounded-md w-full h-full">
+
+      </section>
+    </template>
+  </MainLayout>
   </main>
 </template>
 
