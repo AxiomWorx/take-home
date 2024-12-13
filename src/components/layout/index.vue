@@ -10,9 +10,7 @@
     <MobileSidebar />
 
     <main class="flex-1 min-w-0 bg-background">
-      <!-- Content Area with Details Panel -->
-      <div class="flex h-[calc(100vh-4rem)]">
-        <!-- Main Content -->
+      <div class="flex h-[calc(100vh-2rem)]">
         <div class="flex-1 min-w-0 p-8 overflow-auto">
           <slot name="content">
           </slot>

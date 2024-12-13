@@ -1306,10 +1306,25 @@
     "@vueuse/shared" "10.11.1"
     vue-demi ">=0.14.8"
 
+"@vueuse/core@^12.0.0":
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/core/-/core-12.0.0.tgz#9b07923ca24a6b5873bf614888c7d0f796cef7d2"
+  integrity sha512-C12RukhXiJCbx4MGhjmd/gH52TjJsc3G0E0kQj/kb19H3Nt6n1CA4DRWuTdWWcaFRdlTe0npWDS942mvacvNBw==
+  dependencies:
+    "@types/web-bluetooth" "^0.0.20"
+    "@vueuse/metadata" "12.0.0"
+    "@vueuse/shared" "12.0.0"
+    vue "^3.5.13"
+
 "@vueuse/metadata@10.11.1":
   version "10.11.1"
   resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-10.11.1.tgz#209db7bb5915aa172a87510b6de2ca01cadbd2a7"
   integrity sha512-IGa5FXd003Ug1qAZmyE8wF3sJ81xGLSqTqtQ6jaVfkeZ4i5kS2mwQF61yhVqojRnenVew5PldLyRgvdl4YYuSw==
+
+"@vueuse/metadata@12.0.0":
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/metadata/-/metadata-12.0.0.tgz#ba6c279528fdb3c821825302f8a45c5ce327db01"
+  integrity sha512-Yzimd1D3sjxTDOlF05HekU5aSGdKjxhuhRFHA7gDWLn57PRbBIh+SF5NmjhJ0WRgF3my7T8LBucyxdFJjIfRJQ==
 
 "@vueuse/shared@10.11.1", "@vueuse/shared@^10.11.0":
   version "10.11.1"
@@ -1317,6 +1332,13 @@
   integrity sha512-LHpC8711VFZlDaYUXEBbFBCQ7GS3dVU9mjOhhMhXP6txTV4EhYQg/KGnQuvt/sPAtoUKq7VVUnL6mVtFoL42sA==
   dependencies:
     vue-demi ">=0.14.8"
+
+"@vueuse/shared@12.0.0":
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/@vueuse/shared/-/shared-12.0.0.tgz#8d765a1c5038cc4ea29e9bbb622b2d4fd3365aef"
+  integrity sha512-3i6qtcq2PIio5i/vVYidkkcgvmTjCqrf26u+Fd4LhnbBmIT6FN8y6q/GJERp8lfcB9zVEfjdV0Br0443qZuJpw==
+  dependencies:
+    vue "^3.5.13"
 
 abbrev@^2.0.0:
   version "2.0.0"
