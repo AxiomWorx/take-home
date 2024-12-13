@@ -1,6 +1,19 @@
 <script setup lang="ts">
+  import { watchEffect } from 'vue'
   import DesktopSidebar from './DesktopSidebar.vue'
   import MobileSidebar from './ModbileSidebar.vue'
+  import { useUsers } from '@/composables/useUsers'
+  import { useUserStore } from '@/stores/user'
+
+  const { usersQuery } = useUsers()
+  const userStore = useUserStore()
+
+  watchEffect(() => {
+    if (usersQuery.data.value) {
+      userStore.setUsers(usersQuery.data.value)
+    }
+  })
+
 
 </script>
 
