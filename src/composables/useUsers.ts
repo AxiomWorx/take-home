@@ -14,7 +14,11 @@ export function useUsers() {
  ******************************************************/
   const usersQuery = useQuery({
     queryKey: ['users', filters],
-    queryFn: () => userApi.getFiltered(filters.value)
+    queryFn: () => userApi.getFiltered(filters.value),
+    staleTime: 1000 * 60 * 5,   // Cache goes stale after 5 mins
+    gcTime: 1000 * 60 * 10,     // Cache garbage collection: 10 mins
+    retry: 2,                   // Retry failed requests twice
+    refetchOnWindowFocus: false
   })
 
   const userByIdQuery = (id: number) => useQuery({

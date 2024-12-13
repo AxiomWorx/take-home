@@ -1,17 +1,17 @@
 export interface User {
   id: number
-  firstName: string
-  lastName: string
+  first_name: string
+  last_name: string
   role: string
   plan: string
   company: string
   email: string
-  phone: string
+  phone_number_number: string
 }
 
 export interface UserFilters {
-  firstName?: string
-  lastName?: string
+  first_name?: string
+  last_name?: string
   plan?: string
   page?: number
   limit?: number
