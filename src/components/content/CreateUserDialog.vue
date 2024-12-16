@@ -11,6 +11,7 @@ import { useToast } from '@/composables/useToast'
 import { PlusIcon } from 'lucide-vue-next'
 import { USER_PLANS, COMPANIES, type UserPlan, type UserCompany } from '@/lib/constants'
 import { cn, formatPhoneNumber } from '@/lib/utils'
+import Avatar from '../ui/avatar/Avatar.vue'
 
 // Validation schema (reusing the same validation rules as DetailsPane)
 const userSchema = z.object({
@@ -34,7 +35,8 @@ const userSchema = z.object({
   phone_number: z.string()
     .min(1, 'Phone number is required')
     .regex(/^\(\d{3}\)\s\d{3}-\d{4}$/, 'Phone number must be in format (555) 555-5555')
-    .trim()
+    .trim(),
+  avatar_url: z.string().optional()
 })
 
 type UserSchema = z.infer<typeof userSchema>
@@ -62,7 +64,8 @@ const formData = ref<UserSchema>({
   plan: USER_PLANS[0].value as UserPlan,
   company: COMPANIES[0].value as UserCompany,
   email: '',
-  phone_number: ''
+  phone_number: '',
+  avatar_url: '',
 })
 
 // handler for the phone input
@@ -70,6 +73,11 @@ function handlePhoneInput(event: Event) {
   const input = event.target as HTMLInputElement
   const formattedValue = formatPhoneNumber(input.value)
   formData.value.phone_number = formattedValue
+}
+
+//handler for adding an Avatar
+const handleAvatarUpdate = (url: string) => {
+  formData.value.avatar_url = url
 }
 
 // Validate single field
@@ -98,7 +106,8 @@ const validateForm = () => {
       plan: formData.value.plan,
       company: formData.value.company,
       email: formData.value.email.trim(),
-      phone_number: formData.value.phone_number.trim()
+      phone_number: formData.value.phone_number.trim(),
+      avatar_url: formData.value.avatar_url?.trim(),
     }
 
     userSchema.parse(dataToValidate)
@@ -142,7 +151,8 @@ const handleSubmit = async () => {
       plan: USER_PLANS[0].value as UserPlan,
       company: COMPANIES[0].value as UserCompany,
       email: '',
-      phone_number: ''
+      phone_number: '',
+      avatar_url: ''
     }
     emit('update:open', false)
   } catch (error) {
@@ -166,12 +176,22 @@ const handleBlur = (field: keyof UserSchema) => {
 
 <template>
   <Dialog :open="open" @update:open="emit('update:open', $event)" class="">
-    <DialogContent class="lg:max-w-[45rem]">
+    <DialogContent class="lg:max-w-[45rem] max-h-[90vh] flex flex-col">
       <DialogHeader>
         <DialogTitle>Create New User</DialogTitle>
       </DialogHeader>
 
-      <div class="space-y-4 py-4">
+      <div class="flex-1 overflow-y-auto pr-6 -mr-6">
+      <div class="py-4">
+
+        <FormField label="Image:">
+          <Avatar
+            :image-url="formData.avatar_url"
+            :on-update-image="handleAvatarUpdate"
+            size="lg"
+          />
+        </FormField>
+
         <FormField label="First Name:" required>
           <Input
             v-model="formData.first_name"
@@ -264,6 +284,7 @@ const handleBlur = (field: keyof UserSchema) => {
           </span>
         </FormField>
       </div>
+    </div>
 
       <DialogFooter>
         <Button

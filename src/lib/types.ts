@@ -7,6 +7,7 @@ export interface User {
   company: string
   email: string
   phone_number: string
+  avatar_url?: string
 }
 
 export interface UserFilters {

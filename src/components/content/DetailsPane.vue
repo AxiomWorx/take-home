@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue'
+  import { ImagePlus } from 'lucide-vue-next'
   import { z } from 'zod'
   import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
   import { Input } from '@/components/ui/input'
@@ -35,7 +36,8 @@
     phone_number: z.string()
       .min(1, 'Phone number is required')
       .regex(/^\(\d{3}\)\s\d{3}-\d{4}$/, 'Phone number must be in format (555) 555-5555')
-      .trim()
+      .trim(),
+    avatar_url: z.string().optional()
   })
 
   type UserSchema = z.infer<typeof userSchema>
@@ -57,7 +59,8 @@
   plan: USER_PLANS[0].value as UserPlan,
   company: COMPANIES[0].value as UserCompany,
   email: '',
-  phone_number: ''
+  phone_number: '',
+  avatar_url: ''
 })
 
 // Watch for update to formData when selectedUser changes
@@ -71,7 +74,8 @@ watch(selectedUser, (newUser) => {
       plan: newUser.plan as UserPlan,
       company: newUser.company as UserCompany,
       email: newUser.email || '',
-      phone_number: newUser.phone_number || ''
+      phone_number: newUser.phone_number || '',
+      avatar_url: newUser.avatar_url || '',
     }
   } else {
     // Reset form if no user is selected
@@ -82,7 +86,8 @@ watch(selectedUser, (newUser) => {
       plan: USER_PLANS[0].value as UserPlan,
       company: COMPANIES[0].value as UserCompany,
       email: '',
-      phone_number: ''
+      phone_number: '',
+      avatar_url: '',
     }
   }
 }, { immediate: true })
@@ -92,6 +97,10 @@ watch(selectedUser, (newUser) => {
     const input = event.target as HTMLInputElement
     const formattedValue = formatPhoneNumber(input.value)
     formData.value.phone_number = formattedValue
+  }
+
+  const handleAvatarUpdate = (url: string) => {
+    formData.value.avatar_url = url
   }
 
   // Validate single field
@@ -186,8 +195,13 @@ watch(selectedUser, (newUser) => {
     <CardContent class="">
       <article class="flex flex-col md:flex-row gap-0">
         <aside class="w-full h-48 md:h-auto md:w-1/3 bg-muted">
-
-          <Avatar v-if="selectedUser"/>
+          <Avatar
+            v-if="selectedUser"
+            :image-url="formData.avatar_url"
+            :on-update-image="handleAvatarUpdate"
+            size="lg"
+            class="w-full h-full"
+          />
         </aside>
         <section class="w-full md:w-2/3 p-4">
           <CardHeader>
