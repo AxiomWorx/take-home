@@ -1,20 +1,23 @@
 <script setup lang="ts">
-  import { ref } from 'vue'
-  import { Button } from '@/components/ui/button'
-  import { useUserStore } from '@/stores/user'
-  import { storeToRefs } from 'pinia'
-  import type { User } from '@/lib/types'
-  import { FilterIcon, PlusIcon } from '../ui/icons'
-  import CreateUserDialog from '../content/CreateUserDialog.vue'
+import { ref, computed } from 'vue'
+import { Button } from '@/components/ui/button'
+import { useUserStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
+import type { User } from '@/lib/types'
+import { PlusIcon, UsersIcon } from 'lucide-vue-next'
+import CreateUserDialog from '../content/CreateUserDialog.vue'
+import FilterMenu from '../content/FilterMenu.vue'
 
-  const isCreateDialogOpen = ref(false)
+const isCreateDialogOpen = ref(false)
 
-  const userStore = useUserStore()
-  const { users, selectedUser } = storeToRefs(userStore)
+const userStore = useUserStore()
+const { selectedUser, users } = storeToRefs(userStore)
 
-  function handleUserClick(user: User) {
-    userStore.setSelectedUser(user)
-  }
+const isEmpty = computed(() => users.value.length === 0)
+
+function handleUserClick(user: User) {
+  userStore.setSelectedUser(user)
+}
 </script>
 
 <template>
@@ -22,15 +25,14 @@
     <div class="flex items-center gap-2 mb-6 sticky top-0 z-10">
       <div class="bg-white w-full h-16 pt-4">
         <div class="px-4">
-          <Button class="w-full"><FilterIcon /> Filter</Button>
+          <FilterMenu />
         </div>
-
         <hr class="my-2 w-full h-2 z-20" />
       </div>
     </div>
 
     <div class="flex-1 overflow-auto">
-      <nav class="space-y-2 px-4 pb-8">
+      <nav v-if="!isEmpty" class="space-y-2 px-4 pb-8">
         <a
           v-for="user in users"
           :key="user.id"
@@ -45,10 +47,19 @@
           </div>
         </a>
       </nav>
+      <div v-else class="flex flex-col items-center justify-center h-full px-4 text-center">
+        <UsersIcon class="w-12 h-12 text-gray-400 mb-4" />
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">No users found</h3>
+        <p class="text-sm text-gray-500 mb-4">Get started by creating a new user</p>
+        <Button variant="outline" @click="isCreateDialogOpen = true">
+          <PlusIcon class="w-4 h-4 mr-2" />
+          Create User
+        </Button>
+      </div>
     </div>
     <div class="flex-none p-4 border-t bg-gray-100">
       <Button class="w-full" variant="default" @click="isCreateDialogOpen = true">
-        <PlusIcon />
+        <PlusIcon class="w-4 h-4 mr-2" />
         Create User
       </Button>
       <CreateUserDialog v-model:open="isCreateDialogOpen" />

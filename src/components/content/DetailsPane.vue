@@ -10,7 +10,7 @@ import FormField from './FormField.vue'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia'
 import { useUsers } from '@/composables/useUsers'
-import { SaveIcon }  from '../ui/icons'
+import { SaveIcon }  from 'lucide-vue-next'
 import Avatar from '../ui/avatar/Avatar.vue'
 import { useToast } from '@/composables/useToast'
 import { cn, formatPhoneNumber } from '@/lib/utils'
@@ -121,24 +121,17 @@ const validateForm = () => {
       phone_number: formData.value.phone_number.trim()
     }
 
-    // Remove: Debug-handler
-    console.log('Data being validated:', dataToValidate)
-
     userSchema.parse(dataToValidate)
     errors.value = {}
     return true
   } catch (error) {
     if (error instanceof z.ZodError) {
-      // Remove: Debug-handler
-      console.log('Validation errors:', error.errors)
       errors.value = error.errors.reduce((acc, curr) => {
         const field = curr.path[0] as keyof UserSchema
         acc[field] = curr.message
         return acc
       }, {} as ValidationErrors)
     }
-    // Remove: Debug-handler
-    console.log('Final error state:', errors.value)
     return false
   }
 }
@@ -148,9 +141,6 @@ const handleSave = async () => {
   if (!selectedUser.value || isSubmitting.value) return
 
   if (!validateForm()) {
-    // Remove: Debug-handler
-    console.log('Current form data:', formData.value)
-    console.log('Current errors:', errors.value)
     showError('Validation Error', 'Please check the form and try again.')
     return
   }

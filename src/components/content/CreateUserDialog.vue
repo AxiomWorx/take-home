@@ -8,7 +8,7 @@ import Select from '../ui/select/Select.vue'
 import FormField from '../content/FormField.vue'
 import { useUsers } from '@/composables/useUsers'
 import { useToast } from '@/composables/useToast'
-import { PlusIcon } from '../ui/icons'
+import { PlusIcon } from 'lucide-vue-next'
 import { USER_PLANS, COMPANIES } from '@/lib/constants'
 import { cn, formatPhoneNumber } from '@/lib/utils'
 

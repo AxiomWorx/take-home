@@ -3,23 +3,28 @@ import { userApi } from '@/lib/api'
 import type { User } from '@/lib/types'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia'
+import { watch } from 'vue'
 
 export function useUsers() {
   const queryClient = useQueryClient()
   const userStore = useUserStore()
   const { filters } = storeToRefs(userStore)
 
-/******************************************************
- *                    Queries
- ******************************************************/
   const usersQuery = useQuery({
     queryKey: ['users', filters],
     queryFn: () => userApi.getFiltered(filters.value),
-    staleTime: 1000 * 60 * 5,   // Cache goes stale after 5 mins
-    gcTime: 1000 * 60 * 10,     // Cache garbage collection: 10 mins
-    retry: 2,                   // Retry failed requests twice
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    retry: 2,
     refetchOnWindowFocus: false
   })
+
+  // Watch for changes in the query data
+  watch(() => usersQuery.data.value, (newData) => {
+    if (newData) {
+      userStore.setUsers(newData)
+    }
+  }, { immediate: true })
 
   const userByIdQuery = (id: number) => useQuery({
     queryKey: ['users', id],
@@ -27,9 +32,6 @@ export function useUsers() {
     enabled: !!id
   })
 
-/******************************************************
- *                    Mutations
- ******************************************************/
   const createUserMutation = useMutation({
     mutationFn: (newUser: Omit<User, 'id'>) => userApi.create(newUser),
     onSuccess: () => {
@@ -65,7 +67,6 @@ export function useUsers() {
   return {
     usersQuery,
     userByIdQuery,
-
     createUserMutation,
     updateUserMutation,
     deleteUserMutation

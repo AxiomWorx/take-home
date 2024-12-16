@@ -15,8 +15,22 @@ export const userApi = {
   getAll: () =>
     api.get<User[]>('/users').then(res => res.data),
 
-  getFiltered: (filters: UserFilters) =>
-    api.get<User[]>('/users', { params: filters }).then(res => res.data),
+  getFiltered: async (filters: UserFilters) => {
+    // Convert filters to API query parameters
+    const params: Record<string, string | number> = {}
+
+    if (filters.first_name) {
+      params['first_name'] = filters.first_name
+    }
+    if (filters.last_name) {
+      params['last_name'] = filters.last_name
+    }
+    if (filters.plan && filters.plan !== 'All Plans') {
+      params['plan'] = filters.plan
+    }
+
+    return api.get<User[]>('/users', { params }).then(res => res.data)
+  },
 
   getById: (id: number) =>
     api.get<User>(`/users/${id}`).then(res => res.data),

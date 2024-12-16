@@ -29,6 +29,7 @@ export default [
     },
     rules: {
       ...tseslint.configs['recommended'].rules,
+      '@typescript-eslint/no-explicit-any': 'off'
     },
   },
 
@@ -51,10 +52,11 @@ export default [
     rules: {
       ...tseslint.configs['recommended'].rules,
       'vue/script-setup-uses-vars': 'error',
+      '@typescript-eslint/no-explicit-any': 'off'
     },
     globals: {
       ...globals.browser,
       ...globals.es2021,
     },
-  },
+  }
 ]
