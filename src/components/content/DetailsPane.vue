@@ -1,180 +1,183 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { z } from 'zod'
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Select } from '@/components/ui/select'
-import { USER_PLANS, COMPANIES } from '@/lib/constants'
-import FormField from './FormField.vue'
-import { useUserStore } from '@/stores/user'
-import { storeToRefs } from 'pinia'
-import { useUsers } from '@/composables/useUsers'
-import { SaveIcon }  from 'lucide-vue-next'
-import Avatar from '../ui/avatar/Avatar.vue'
-import { useToast } from '@/composables/useToast'
-import { cn, formatPhoneNumber } from '@/lib/utils'
+  import { ref, watch } from 'vue'
+  import { z } from 'zod'
+  import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
+  import { Input } from '@/components/ui/input'
+  import { Button } from '@/components/ui/button'
+  import { Select } from '@/components/ui/select'
+  import { USER_PLANS, COMPANIES, type UserPlan, type UserCompany } from '@/lib/constants'
+  import FormField from './FormField.vue'
+  import { useUserStore } from '@/stores/user'
+  import { storeToRefs } from 'pinia'
+  import { useUsers } from '@/composables/useUsers'
+  import { SaveIcon }  from 'lucide-vue-next'
+  import Avatar from '../ui/avatar/Avatar.vue'
+  import { useToast } from '@/composables/useToast'
+  import { cn, formatPhoneNumber } from '@/lib/utils'
 
-// Zod validation schema with non-empty constraints
-const userSchema = z.object({
-  first_name: z.string()
-    .min(1, 'First name is required')
-    .min(2, 'First name must be at least 2 characters')
-    .trim(),
-  last_name: z.string()
-    .min(1, 'Last name is required')
-    .min(2, 'Last name must be at least 2 characters')
-    .trim(),
-  role: z.string().optional(),
-  plan: z.string()
-    .min(1, 'Plan is required')
-    .trim(),
-  company: z.string()
-    .min(1, 'Company is required')
-    .trim(),
-  email: z.string()
-    .min(1, 'Email is required')
-    .email('Invalid email address')
-    .trim(),
-  phone_number: z.string()
-    .min(1, 'Phone number is required')
-    .regex(/^\(\d{3}\)\s\d{3}-\d{4}$/, 'Phone number must be in format (555) 555-5555')
-    .trim()
+  // Zod validation schema with non-empty constraints
+  const userSchema = z.object({
+    first_name: z.string()
+      .min(1, 'First name is required')
+      .min(2, 'First name must be at least 2 characters')
+      .trim(),
+    last_name: z.string()
+      .min(1, 'Last name is required')
+      .min(2, 'Last name must be at least 2 characters')
+      .trim(),
+    role: z.string().optional(),
+    plan: z.enum(USER_PLANS.map(p => p.value) as [string, ...string[]]),
+    company: z.enum(COMPANIES.map(c => c.value) as [string, ...string[]]),
+    email: z.string()
+      .min(1, 'Email is required')
+      .email('Invalid email address')
+      .trim(),
+    phone_number: z.string()
+      .min(1, 'Phone number is required')
+      .regex(/^\(\d{3}\)\s\d{3}-\d{4}$/, 'Phone number must be in format (555) 555-5555')
+      .trim()
+  })
+
+  type UserSchema = z.infer<typeof userSchema>
+  type ValidationErrors = Partial<Record<keyof UserSchema, string>>
+
+  const userStore = useUserStore()
+  const { selectedUser } = storeToRefs(userStore)
+  const { updateUserMutation } = useUsers()
+  const { showSuccess, showError } = useToast()
+
+  const errors = ref<ValidationErrors>({})
+  const isSubmitting = ref(false)
+
+  // Form state to copy the selected user data
+  const formData = ref<UserSchema>({
+  first_name: '',
+  last_name: '',
+  role: '',
+  plan: USER_PLANS[0].value as UserPlan,
+  company: COMPANIES[0].value as UserCompany,
+  email: '',
+  phone_number: ''
 })
 
-type UserSchema = z.infer<typeof userSchema>
-type ValidationErrors = Partial<Record<keyof UserSchema, string>>
-
-const userStore = useUserStore()
-const { selectedUser } = storeToRefs(userStore)
-const { updateUserMutation } = useUsers()
-const { showSuccess, showError } = useToast()
-
-const errors = ref<ValidationErrors>({})
-const isSubmitting = ref(false)
-
-// reset error states when selected user changes
+// Watch for update to formData when selectedUser changes
 watch(selectedUser, (newUser) => {
-  errors.value = {}
-}, { immediate: true })
-
-// Form state to copy the selected user data
-const formData = computed<UserSchema>(() => {
-  if (!selectedUser.value) {
-    return {
+   console.log('Selected User Data:', newUser)
+  if (newUser) {
+    formData.value = {
+      first_name: newUser.first_name || '',
+      last_name: newUser.last_name || '',
+      role: newUser.role || '',
+      plan: newUser.plan as UserPlan,
+      company: newUser.company as UserCompany,
+      email: newUser.email || '',
+      phone_number: newUser.phone_number || ''
+    }
+  } else {
+    // Reset form if no user is selected
+    formData.value = {
       first_name: '',
       last_name: '',
       role: '',
-      plan: '',
-      company: '',
+      plan: USER_PLANS[0].value as UserPlan,
+      company: COMPANIES[0].value as UserCompany,
       email: '',
       phone_number: ''
     }
   }
+}, { immediate: true })
 
-  // Ensure all required fields are present
-  return {
-    first_name: selectedUser.value.first_name || '',
-    last_name: selectedUser.value.last_name || '',
-    role: selectedUser.value.role || '',
-    plan: selectedUser.value.plan || '',
-    company: selectedUser.value.company || '',
-    email: selectedUser.value.email || '',
-    phone_number: selectedUser.value.phone_number || ''
+  // handler for the phone input
+  function handlePhoneInput(event: Event) {
+    const input = event.target as HTMLInputElement
+    const formattedValue = formatPhoneNumber(input.value)
+    formData.value.phone_number = formattedValue
   }
-})
 
-// handler for the phone input
-function handlePhoneInput(event: Event) {
-  const input = event.target as HTMLInputElement
-  const formattedValue = formatPhoneNumber(input.value)
-  formData.value.phone_number = formattedValue
-}
+  // Validate single field
+  const validateField = (field: keyof UserSchema, value: string) => {
+    try {
+      const singleFieldSchema = z.object({
+        [field]: userSchema.shape[field]
+      })
 
-// Validate single field
-const validateField = (field: keyof UserSchema, value: string) => {
-  try {
-    const singleFieldSchema = z.object({
-      [field]: userSchema.shape[field]
-    })
-
-    singleFieldSchema.parse({ [field]: value })
-    delete errors.value[field]
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      errors.value[field] = error.errors[0].message
+      singleFieldSchema.parse({ [field]: value })
+      delete errors.value[field]
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        errors.value[field] = error.errors[0].message
+      }
     }
   }
-}
 
-// Validate form data
-const validateForm = () => {
-  try {
-    // Create a clean object with all required fields
-    const dataToValidate: UserSchema = {
-      first_name: formData.value.first_name.trim(),
-      last_name: formData.value.last_name.trim(),
-      role: formData?.value?.role?.trim() || '', // optional (for now)
-      plan: formData.value.plan.trim(),
-      company: formData.value.company.trim(),
-      email: formData.value.email.trim(),
-      phone_number: formData.value.phone_number.trim()
+  // Validate form data
+  const validateForm = () => {
+    try {
+      // Create a clean object with all required fields
+      const dataToValidate: UserSchema = {
+        first_name: formData.value.first_name.trim(),
+        last_name: formData.value.last_name.trim(),
+        role: formData?.value?.role?.trim() || '', // optional (for now)
+        plan: formData.value.plan,
+        company: formData.value.company,
+        email: formData.value.email.trim(),
+        phone_number: formData.value.phone_number.trim()
+      }
+
+      userSchema.parse(dataToValidate)
+      errors.value = {}
+      return true
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        errors.value = error.errors.reduce((acc, curr) => {
+          const field = curr.path[0] as keyof UserSchema
+          acc[field] = curr.message
+          return acc
+        }, {} as ValidationErrors)
+      }
+      return false
+    }
+  }
+
+  // Handle form submission
+  const handleSave = async () => {
+    if (!selectedUser.value || isSubmitting.value) return
+
+    if (!validateForm()) {
+      showError('Validation Error', 'Please check the form and try again.')
+      return
     }
 
-    userSchema.parse(dataToValidate)
-    errors.value = {}
-    return true
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      errors.value = error.errors.reduce((acc, curr) => {
-        const field = curr.path[0] as keyof UserSchema
-        acc[field] = curr.message
-        return acc
-      }, {} as ValidationErrors)
+    try {
+      isSubmitting.value = true
+
+      await updateUserMutation.mutateAsync({
+        id: selectedUser.value.id,
+        user: formData.value
+      })
+
+      showSuccess(
+        'Success',
+        `${formData.value.first_name} ${formData.value.last_name}'s details have been updated.`
+      )
+    } catch (error) {
+      console.error('Save error:', error)
+      showError(
+        'Failed to update user',
+        'There was an error saving the user details. Please try again.'
+      )
+    } finally {
+      isSubmitting.value = false
     }
-    return false
-  }
-}
-
-// Handle form submission
-const handleSave = async () => {
-  if (!selectedUser.value || isSubmitting.value) return
-
-  if (!validateForm()) {
-    showError('Validation Error', 'Please check the form and try again.')
-    return
   }
 
-  try {
-    isSubmitting.value = true
-
-    await updateUserMutation.mutateAsync({
-      id: selectedUser.value.id,
-      user: formData.value
-    })
-
-    showSuccess(
-      'Success',
-      `${formData.value.first_name} ${formData.value.last_name}'s details have been updated.`
-    )
-  } catch (error) {
-    console.error('Save error:', error)
-    showError(
-      'Failed to update user',
-      'There was an error saving the user details. Please try again.'
-    )
-  } finally {
-    isSubmitting.value = false
+  // Handle input blur for real time validation
+  const handleBlur = (field: keyof UserSchema) => {
+    // ignore undefined optional fields
+    if(!!formData?.value[field]) {
+      validateField(field, formData.value[field])
+    }
   }
-}
-
-// Handle input blur for real time validation
-const handleBlur = (field: keyof UserSchema) => {
-  // ignore undefined optional fields
-  if(!!formData?.value[field]) {
-    validateField(field, formData.value[field])
-  }
-}
 </script>
 
 <template>

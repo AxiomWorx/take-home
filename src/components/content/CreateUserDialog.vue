@@ -9,7 +9,7 @@ import FormField from '../content/FormField.vue'
 import { useUsers } from '@/composables/useUsers'
 import { useToast } from '@/composables/useToast'
 import { PlusIcon } from 'lucide-vue-next'
-import { USER_PLANS, COMPANIES } from '@/lib/constants'
+import { USER_PLANS, COMPANIES, type UserPlan, type UserCompany } from '@/lib/constants'
 import { cn, formatPhoneNumber } from '@/lib/utils'
 
 // Validation schema (reusing the same validation rules as DetailsPane)
@@ -25,8 +25,8 @@ const userSchema = z.object({
   role: z.string()
     .min(1, 'Role is required')
     .trim(),
-  plan: z.enum(['Free Plan', 'Pro Plan', 'Trial'] as const),
-  company: z.enum(['Axiomworx', 'Equinox Engineering', 'Apple'] as const),
+  plan: z.enum(USER_PLANS.map(p => p.value) as [string, ...string[]]),
+  company: z.enum(COMPANIES.map(c => c.value) as [string, ...string[]]),
   email: z.string()
     .min(1, 'Email is required')
     .email('Invalid email address')
@@ -59,8 +59,8 @@ const formData = ref<UserSchema>({
   first_name: '',
   last_name: '',
   role: '',
-  plan: USER_PLANS[0].value,
-  company: COMPANIES[0].value,
+  plan: USER_PLANS[0].value as UserPlan,
+  company: COMPANIES[0].value as UserCompany,
   email: '',
   phone_number: ''
 })
@@ -139,8 +139,8 @@ const handleSubmit = async () => {
       first_name: '',
       last_name: '',
       role: '',
-      plan: USER_PLANS[0].value,
-      company: COMPANIES[0].value,
+      plan: USER_PLANS[0].value as UserPlan,
+      company: COMPANIES[0].value as UserCompany,
       email: '',
       phone_number: ''
     }
