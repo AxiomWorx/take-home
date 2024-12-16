@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Select } from '@/components/ui/select'
+import { USER_PLANS, COMPANIES } from '@/lib/constants'
 import FormField from './FormField.vue'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia'
@@ -11,6 +13,7 @@ import { useUsers } from '@/composables/useUsers'
 import { SaveIcon }  from '../ui/icons'
 import Avatar from '../ui/avatar/Avatar.vue'
 import { useToast } from '@/composables/useToast'
+import { cn, formatPhoneNumber } from '@/lib/utils'
 
 // Zod validation schema with non-empty constraints
 const userSchema = z.object({
@@ -80,6 +83,13 @@ const formData = computed<UserSchema>(() => {
     phone_number: selectedUser.value.phone_number || ''
   }
 })
+
+// handler for the phone input
+function handlePhoneInput(event: Event) {
+  const input = event.target as HTMLInputElement
+  const formattedValue = formatPhoneNumber(input.value)
+  formData.value.phone_number = formattedValue
+}
 
 // Validate single field
 const validateField = (field: keyof UserSchema, value: string) => {
@@ -223,10 +233,11 @@ const handleBlur = (field: keyof UserSchema) => {
             </FormField>
 
             <FormField label="Plan:" required>
-              <Input
+              <Select
                 v-model="formData.plan"
-                class="bg-white"
-                :class="{ 'border-destructive': errors.plan }"
+                :options="USER_PLANS"
+                placeholder="Select a plan"
+                :class="cn(errors.plan && 'border-destructive')"
                 :disabled="!selectedUser"
                 @blur="handleBlur('plan')"
               />
@@ -236,10 +247,11 @@ const handleBlur = (field: keyof UserSchema) => {
             </FormField>
 
             <FormField label="Company:" required>
-              <Input
+              <Select
                 v-model="formData.company"
-                class="bg-white"
-                :class="{ 'border-destructive': errors.company }"
+                :options="COMPANIES"
+                placeholder="Select a company"
+                :class="cn(errors.company && 'border-destructive')"
                 :disabled="!selectedUser"
                 @blur="handleBlur('company')"
               />
@@ -247,7 +259,6 @@ const handleBlur = (field: keyof UserSchema) => {
                 {{ errors.company }}
               </span>
             </FormField>
-
             <FormField label="Email:" required>
               <Input
                 v-model="formData.email"
@@ -263,11 +274,14 @@ const handleBlur = (field: keyof UserSchema) => {
 
             <FormField label="Phone Number:" required>
               <Input
-                v-model="formData.phone_number"
+                :value="formData.phone_number"
                 class="bg-white"
-                :class="{ 'border-destructive': errors.phone_number }"
+                :class="cn(errors.phone_number && 'border-destructive')"
+                placeholder="(555) 555-5555"
                 :disabled="!selectedUser"
+                @input="handlePhoneInput"
                 @blur="handleBlur('phone_number')"
+                maxlength="14"
               />
               <span v-if="errors.phone_number" class="text-sm text-destructive">
                 {{ errors.phone_number }}
