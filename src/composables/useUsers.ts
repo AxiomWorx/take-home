@@ -38,8 +38,18 @@ export function useUsers() {
   })
 
   const updateUserMutation = useMutation({
-    mutationFn: ({ id, user }: { id: number; user: Partial<User> }) =>
-      userApi.update(id, user),
+    mutationFn: async ({ id, user }: { id: number; user: Partial<User> }) => {
+      try {
+        const response = await userApi.update(id, user)
+        return response
+      } catch (error) {
+        console.error('Mutation error:', error)
+        throw error
+      }
+    },
+    onError: (error) => {
+      console.error('Mutation onError:', error)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     }

@@ -35,8 +35,15 @@ export const userApi = {
   create: (user: Omit<User, 'id'>) =>
     api.post<User>('/users', user).then(res => res.data),
 
-  update: (id: number, user: Partial<User>) =>
-    api.put<User>(`/users/${id}`, user).then(res => res.data),
+  update: async (id: number, user: Partial<User>) => {
+    try {
+      const response = await api.put<User>(`/users/${id}`, user)
+      return response.data
+    } catch (error) {
+      console.error('API update error:', error)
+      throw error
+    }
+  },
 
   patch: (id: number, user: Partial<User>) =>
     api.patch<User>(`/users/${id}`, user).then(res => res.data),

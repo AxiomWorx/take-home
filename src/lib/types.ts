@@ -6,7 +6,7 @@ export interface User {
   plan: string
   company: string
   email: string
-  phone_number_number: string
+  phone_number: string
 }
 
 export interface UserFilters {

@@ -9,6 +9,8 @@ import {
   DialogOverlay,
   DialogPortal,
   useForwardPropsEmits,
+  DialogTitle,
+  VisuallyHidden,
 } from 'radix-vue'
 import { computed, type HTMLAttributes } from 'vue'
 import { type SheetVariants, sheetVariants } from '.'
@@ -43,7 +45,13 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     <DialogContent
       :class="cn(sheetVariants({ side }), props.class)"
       v-bind="{ ...forwarded, ...$attrs }"
+      aria-describedby="collapsible hamburger menu for smaller screen sizes"
     >
+    <!-- This suppresses a console warning about Dialog title being required. In this context it is unnecessary -->
+    <VisuallyHidden>
+      <DialogTitle></DialogTitle>
+    </VisuallyHidden>
+
       <slot />
 
       <DialogClose
