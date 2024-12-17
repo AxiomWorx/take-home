@@ -154,9 +154,9 @@ const handleBlur = (field: keyof CreateUserSchema) => {
       </DialogHeader>
 
       <div class="flex-1 overflow-y-auto pr-6 -mr-6">
-      <div class="py-4">
+      <div class="py-4 space-y-5">
 
-        <FormField label="Image:">
+        <FormField label="Personal Avatar:">
           <Avatar
             :image-url="formData.avatar_url"
             :on-update-image="handleAvatarUpdate"

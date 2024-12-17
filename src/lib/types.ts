@@ -1,3 +1,8 @@
+/**
+ * Represents a user in the system
+ *
+ * @interface User
+ */
 export interface User {
   id: number
   first_name: string
@@ -10,6 +15,11 @@ export interface User {
   avatar_url?: string
 }
 
+/**
+ * Filter parameters for querying users
+ *
+ * @interface UserFilters
+ */
 export interface UserFilters {
   first_name?: string
   last_name?: string

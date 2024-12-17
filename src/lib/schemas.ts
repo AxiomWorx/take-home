@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import { USER_PLANS, COMPANIES } from './constants'
 
-// Base schema with common fields
+/**
+ * Common validation schema fields shared between create and update operations
+ */
 const baseUserSchema = {
   first_name: z.string()
     .min(1, 'First name is required')
@@ -24,7 +26,10 @@ const baseUserSchema = {
   avatar_url: z.string().optional()
 }
 
-// Role required for creating users
+/**
+ * Validation schema for creating new users
+ * Includes all base fields plus required role field
+ */
 export const createUserSchema = z.object({
   ...baseUserSchema,
   role: z.string()
@@ -32,12 +37,26 @@ export const createUserSchema = z.object({
     .trim()
 })
 
-// Role optional for updating users, because existing users do not have a role assigned
+/**
+ * Validation schema for updating existing users
+ * Similar to create schema but role field is optional
+ */
 export const updateUserSchema = z.object({
   ...baseUserSchema,
   role: z.string().optional()
 })
 
+/**
+ * Type representing the shape of data required to create a new user
+ */
 export type CreateUserSchema = z.infer<typeof createUserSchema>
+
+/**
+ * Type representing the shape of data allowed when updating a user
+ */
 export type UpdateUserSchema = z.infer<typeof updateUserSchema>
+
+/**
+ * Type for tracking validation errors for each field in the create user schema
+ */
 export type ValidationErrors = Partial<Record<keyof CreateUserSchema, string>>

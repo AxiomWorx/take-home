@@ -1,6 +1,9 @@
 import axios from 'axios'
 import { User, UserFilters } from './types'
 
+/**
+ * Axios instance configured for the user management API
+ */
 export const api = axios.create({
   baseURL: 'https://retoolapi.dev/99Xpa9',
   headers: {
@@ -8,15 +11,23 @@ export const api = axios.create({
   }
 })
 
+/**
+ * API client for user management operations
+ */
 export const userApi = {
-/******************************************************
- *                    Queries
- ******************************************************/
+  /**
+   * Retrieves all users from the system
+   * @returns Promise resolving to array of users
+   */
   getAll: () =>
     api.get<User[]>('/users').then(res => res.data),
 
+  /**
+   * Retrieves filtered list of users based on provided criteria
+   * @param filters - Filter criteria for users
+   * @returns Promise resolving to filtered array of users
+   */
   getFiltered: async (filters: UserFilters) => {
-    // Convert filters to API query parameters
     const params: Record<string, string | number> = {}
 
     if (filters.first_name) {
@@ -32,9 +43,25 @@ export const userApi = {
     return api.get<User[]>('/users', { params }).then(res => res.data)
   },
 
+  /**
+   * Retrieves a single user by their ID
+   * @param id - User's unique identifier
+   * @returns Promise resolving to user data
+   */
   getById: (id: number) =>
     api.get<User>(`/users/${id}`).then(res => res.data),
 
+/**
+ * Retrieves a paginated list of users
+ *
+ * Note: While not currently implemented in the UI due to the small dataset,
+ * this endpoint supports pagination for future scalability when handling
+ * larger user lists.
+ *
+ * @param page - The page number to retrieve (starts at 1)
+ * @param limit - The maximum number of users to return per page
+ * @returns Promise resolving to array of users for the requested page
+ */
   getPaginated: (page: number, limit: number) =>
     api.get<User[]>('/users', {
       params: {
@@ -43,12 +70,20 @@ export const userApi = {
       }
     }).then(res => res.data),
 
-/******************************************************
- *                    Mutations
- ******************************************************/
+  /**
+   * Creates a new user
+   * @param user - User data excluding ID
+   * @returns Promise resolving to created user data
+   */
   create: (user: Omit<User, 'id'>) =>
     api.post<User>('/users', user).then(res => res.data),
 
+  /**
+   * Updates an existing user
+   * @param id - User's unique identifier
+   * @param user - Partial user data to update
+   * @returns Promise resolving to updated user data
+   */
   update: async (id: number, user: Partial<User>) => {
     try {
       const response = await api.put<User>(`/users/${id}`, user)
@@ -59,9 +94,11 @@ export const userApi = {
     }
   },
 
-  patch: (id: number, user: Partial<User>) =>
-    api.patch<User>(`/users/${id}`, user).then(res => res.data),
-
+  /**
+   * Deletes a user from the system
+   * @param id - User's unique identifier
+   * @returns Promise resolving to deletion result
+   */
   delete: (id: number) =>
     api.delete(`/users/${id}`).then(res => res.data)
 }

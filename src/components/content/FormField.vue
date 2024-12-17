@@ -21,7 +21,12 @@ const props = defineProps({
 
 <template>
   <div class="space-y-2">
-    <div class="bg-background p-2 md:p-4 rounded-sm flex items-center gap-4">
+    <div
+      class="bg-background rounded-sm flex items-center gap-4"
+      :class="[
+        gutter ? 'p-2 md:p-3' : 'p-0'
+      ]"
+    >
       <label class="text-xs md:text-sm font-medium text-nowrap">
         <span v-if="required" class="text-destructive">*</span>
         {{ label }}

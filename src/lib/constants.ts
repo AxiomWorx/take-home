@@ -1,3 +1,7 @@
+/**
+ * Available subscription plans for users
+ * The array is marked as const to enable type inference for UserPlan type
+ */
 export const USER_PLANS = [
   { value: 'Free Plan', label: 'Free Plan' },
   { value: 'Basic Plan', label: 'Basic Plan' },
@@ -6,6 +10,10 @@ export const USER_PLANS = [
   { value: 'Trial', label: 'Trial' }
 ] as const
 
+/**
+ * List of available companies for user association
+ * The array is marked as const to enable type inference for UserCompany type
+ */
 export const COMPANIES = [
   // Original companies
   { value: 'Axiomworx', label: 'Axiomworx' },
@@ -54,5 +62,14 @@ export const COMPANIES = [
   { value: 'Bumble', label: 'Bumble' }
 ] as const
 
+/**
+ * Type representing valid user plan values
+ * Automatically derived from USER_PLANS array to ensure type safety
+ */
 export type UserPlan = typeof USER_PLANS[number]['value']
+
+/**
+ * Type representing valid company values
+ * Automatically derived from COMPANIES array to ensure type safety
+ */
 export type UserCompany = typeof COMPANIES[number]['value']

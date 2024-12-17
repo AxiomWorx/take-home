@@ -12,10 +12,10 @@
   import { useUsers } from '@/composables/useUsers'
   import { SaveIcon }  from 'lucide-vue-next'
   import Avatar from '../ui/avatar/Avatar.vue'
-  import { useToast } from '@/composables/useToast'
   import { cn, formatPhoneNumber } from '@/lib/utils'
   import DeleteUserButton from './DeleteUserButton.vue'
   import { updateUserSchema, type UpdateUserSchema, type ValidationErrors } from '../../lib/schemas'
+  import { useToast } from '@/composables/useToast'
 
   const userStore = useUserStore()
   const { selectedUser } = storeToRefs(userStore)
@@ -148,7 +148,6 @@ watch(selectedUser, (newUser) => {
         `${formData.value.first_name} ${formData.value.last_name}'s details have been updated.`
       )
     } catch (error) {
-      console.error('Save error:', error)
       showError(
         'Failed to update user',
         'There was an error saving the user details. Please try again.'
@@ -191,7 +190,7 @@ watch(selectedUser, (newUser) => {
           <h3 class="text-md font-medium mb-4">User Details</h3>
 
           <div class="space-y-4">
-            <FormField label="First Name:" required>
+            <FormField label="First Name:" required gutter>
               <Input
                 v-model="formData.first_name"
                 class="bg-white"
@@ -204,7 +203,7 @@ watch(selectedUser, (newUser) => {
               </span>
             </FormField>
 
-            <FormField label="Last Name:" required>
+            <FormField label="Last Name:" required gutter>
               <Input
                 v-model="formData.last_name"
                 class="bg-white"
@@ -217,7 +216,7 @@ watch(selectedUser, (newUser) => {
               </span>
             </FormField>
 
-            <FormField label="Plan:" required>
+            <FormField label="Plan:" required gutter>
               <Select
                 v-model="formData.plan"
                 :options="USER_PLANS"
@@ -231,7 +230,7 @@ watch(selectedUser, (newUser) => {
               </span>
             </FormField>
 
-            <FormField label="Company:" required>
+            <FormField label="Company:" required gutter>
               <Select
                 v-model="formData.company"
                 :options="COMPANIES"
@@ -245,7 +244,7 @@ watch(selectedUser, (newUser) => {
               </span>
             </FormField>
 
-            <FormField label="Role:">
+            <FormField label="Role:" gutter>
               <Input
                 v-model="formData.role"
                 class="bg-white"
@@ -258,7 +257,7 @@ watch(selectedUser, (newUser) => {
               </span>
             </FormField>
 
-            <FormField label="Email:" required>
+            <FormField label="Email:" required gutter>
               <Input
                 v-model="formData.email"
                 class="bg-white"
@@ -271,7 +270,7 @@ watch(selectedUser, (newUser) => {
               </span>
             </FormField>
 
-            <FormField label="Phone Number:" required>
+            <FormField label="Phone Number:" required gutter>
               <Input
                 v-model="formData.phone_number"
                 class="bg-white"

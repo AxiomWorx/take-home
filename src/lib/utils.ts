@@ -1,6 +1,11 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
+/**
+ * Merges Tailwind CSS classes with support for conditional classes and class variants
+ * @param inputs - Array of class values, conditionals, or variant objects
+ * @returns Merged and deduped class string
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
