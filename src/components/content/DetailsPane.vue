@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue'
-  import { ImagePlus } from 'lucide-vue-next'
   import { z } from 'zod'
   import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
   import { Input } from '@/components/ui/input'
@@ -15,33 +14,8 @@
   import Avatar from '../ui/avatar/Avatar.vue'
   import { useToast } from '@/composables/useToast'
   import { cn, formatPhoneNumber } from '@/lib/utils'
-
-  // Zod validation schema with non-empty constraints
-  const userSchema = z.object({
-    first_name: z.string()
-      .min(1, 'First name is required')
-      .min(2, 'First name must be at least 2 characters')
-      .trim(),
-    last_name: z.string()
-      .min(1, 'Last name is required')
-      .min(2, 'Last name must be at least 2 characters')
-      .trim(),
-    role: z.string().optional(),
-    plan: z.enum(USER_PLANS.map(p => p.value) as [string, ...string[]]),
-    company: z.enum(COMPANIES.map(c => c.value) as [string, ...string[]]),
-    email: z.string()
-      .min(1, 'Email is required')
-      .email('Invalid email address')
-      .trim(),
-    phone_number: z.string()
-      .min(1, 'Phone number is required')
-      .regex(/^\(\d{3}\)\s\d{3}-\d{4}$/, 'Phone number must be in format (555) 555-5555')
-      .trim(),
-    avatar_url: z.string().optional()
-  })
-
-  type UserSchema = z.infer<typeof userSchema>
-  type ValidationErrors = Partial<Record<keyof UserSchema, string>>
+  import DeleteUserButton from './DeleteUserButton.vue'
+  import { updateUserSchema, type UpdateUserSchema, type ValidationErrors } from '../../lib/schemas'
 
   const userStore = useUserStore()
   const { selectedUser } = storeToRefs(userStore)
@@ -52,7 +26,7 @@
   const isSubmitting = ref(false)
 
   // Form state to copy the selected user data
-  const formData = ref<UserSchema>({
+  const formData = ref<UpdateUserSchema>({
   first_name: '',
   last_name: '',
   role: '',
@@ -95,19 +69,22 @@ watch(selectedUser, (newUser) => {
   // handler for the phone input
   function handlePhoneInput(event: Event) {
     const input = event.target as HTMLInputElement
-    const formattedValue = formatPhoneNumber(input.value)
-    formData.value.phone_number = formattedValue
+    formData.value.phone_number = formatPhoneNumber(input.value)
   }
 
   const handleAvatarUpdate = (url: string) => {
     formData.value.avatar_url = url
   }
 
+  const handleUserDeleted = () => {
+    userStore.setSelectedUser(null)
+  }
+
   // Validate single field
-  const validateField = (field: keyof UserSchema, value: string) => {
+  const validateField = (field: keyof UpdateUserSchema, value: string) => {
     try {
       const singleFieldSchema = z.object({
-        [field]: userSchema.shape[field]
+        [field]: updateUserSchema.shape[field]
       })
 
       singleFieldSchema.parse({ [field]: value })
@@ -123,23 +100,24 @@ watch(selectedUser, (newUser) => {
   const validateForm = () => {
     try {
       // Create a clean object with all required fields
-      const dataToValidate: UserSchema = {
+      const dataToValidate: UpdateUserSchema = {
         first_name: formData.value.first_name.trim(),
         last_name: formData.value.last_name.trim(),
         role: formData?.value?.role?.trim() || '', // optional (for now)
         plan: formData.value.plan,
         company: formData.value.company,
         email: formData.value.email.trim(),
-        phone_number: formData.value.phone_number.trim()
+        phone_number: formData.value.phone_number.trim(),
+        avatar_url: formData.value.avatar_url || ''
       }
 
-      userSchema.parse(dataToValidate)
+      updateUserSchema.parse(dataToValidate)
       errors.value = {}
       return true
     } catch (error) {
       if (error instanceof z.ZodError) {
         errors.value = error.errors.reduce((acc, curr) => {
-          const field = curr.path[0] as keyof UserSchema
+          const field = curr.path[0] as keyof UpdateUserSchema
           acc[field] = curr.message
           return acc
         }, {} as ValidationErrors)
@@ -181,7 +159,7 @@ watch(selectedUser, (newUser) => {
   }
 
   // Handle input blur for real time validation
-  const handleBlur = (field: keyof UserSchema) => {
+  const handleBlur = (field: keyof UpdateUserSchema) => {
     // ignore undefined optional fields
     if(!!formData?.value[field]) {
       validateField(field, formData.value[field])
@@ -266,6 +244,20 @@ watch(selectedUser, (newUser) => {
                 {{ errors.company }}
               </span>
             </FormField>
+
+            <FormField label="Role:">
+              <Input
+                v-model="formData.role"
+                class="bg-white"
+                :class="{ 'border-destructive': errors.role }"
+                :disabled="!selectedUser"
+                @blur="handleBlur('role')"
+              />
+              <span v-if="errors.last_name" class="text-sm text-destructive">
+                {{ errors.role }}
+              </span>
+            </FormField>
+
             <FormField label="Email:" required>
               <Input
                 v-model="formData.email"
@@ -281,7 +273,7 @@ watch(selectedUser, (newUser) => {
 
             <FormField label="Phone Number:" required>
               <Input
-                :value="formData.phone_number"
+                v-model="formData.phone_number"
                 class="bg-white"
                 :class="cn(errors.phone_number && 'border-destructive')"
                 placeholder="(555) 555-5555"
@@ -299,7 +291,12 @@ watch(selectedUser, (newUser) => {
       </article>
       <hr />
     </CardContent>
-    <CardFooter class="flex justify-end items-center pt-4">
+    <CardFooter class="flex justify-between items-center pt-4">
+      <DeleteUserButton
+        :user="selectedUser"
+        @deleted="handleUserDeleted"
+      />
+
       <Button
         class="w-60"
         @click="handleSave"

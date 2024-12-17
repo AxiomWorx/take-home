@@ -8,6 +8,7 @@ export function useToast() {
       title,
       description,
       variant: "default",
+      duration: 2000,
     })
   }
 
@@ -16,6 +17,7 @@ export function useToast() {
       title,
       description,
       variant: "destructive",
+      duration: 2000,
     })
   }
 

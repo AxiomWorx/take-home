@@ -5,21 +5,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/**
+ * Formats a phone number string into (XXX) XXX-XXXX format
+ * @param value - The input string to format
+ * @returns The formatted phone number string
+ */
 export function formatPhoneNumber(value: string): string {
-  // Remove all non-digit characters
-  const digits = value.replace(/\D/g, '')
+  // Extract numbers only and match into groups
+  const x = value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/)
 
-  // Apply the mask as user types
-  let formattedNumber = ''
-  if (digits.length > 0) {
-    formattedNumber += '(' + digits.substring(0, 3)
-    if (digits.length > 3) {
-      formattedNumber += ') ' + digits.substring(3, 6)
-      if (digits.length > 6) {
-        formattedNumber += '-' + digits.substring(6, 10)
-      }
-    }
-  }
+  // Return empty string if no match
+  if (!x) return ''
 
-  return formattedNumber
+  // Return formatted string based on matched groups
+  return !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '')
 }

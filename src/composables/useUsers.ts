@@ -52,7 +52,9 @@ export function useUsers() {
     onError: (error) => {
       console.error('Mutation onError:', error)
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      console.log('Mutation success with data:', data)
+      console.log('Variables used:', variables)
       queryClient.invalidateQueries({ queryKey: ['users'] })
     }
   })

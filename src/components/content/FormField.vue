@@ -11,6 +11,10 @@ const props = defineProps({
   required: {
     type: Boolean,
     default: false
+  },
+  gutter: {
+    type: Boolean,
+    default: false
   }
 })
 </script>

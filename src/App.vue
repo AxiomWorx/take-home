@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import MainLayout from '@/components/layout/index.vue'
-import DetailsPane from './components/content/DetailsPane.vue';
-import { Toaster } from '@/components/ui/toast'
+import DetailsPane from './components/content/DetailsPane.vue'
+import { Toaster } from './components/ui/toast'
 </script>
 
 <template>
@@ -11,9 +11,9 @@ import { Toaster } from '@/components/ui/toast'
       <DetailsPane />
     </template>
   </MainLayout>
+  </main>
   <!-- Toaster handles popup messages for user actions -->
   <Toaster />
-  </main>
 </template>
 
 <style scoped>

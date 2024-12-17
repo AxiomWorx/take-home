@@ -12,35 +12,8 @@ import { PlusIcon } from 'lucide-vue-next'
 import { USER_PLANS, COMPANIES, type UserPlan, type UserCompany } from '@/lib/constants'
 import { cn, formatPhoneNumber } from '@/lib/utils'
 import Avatar from '../ui/avatar/Avatar.vue'
+import { createUserSchema, type CreateUserSchema, type ValidationErrors } from '../../lib/schemas'
 
-// Validation schema (reusing the same validation rules as DetailsPane)
-const userSchema = z.object({
-  first_name: z.string()
-    .min(1, 'First name is required')
-    .min(2, 'First name must be at least 2 characters')
-    .trim(),
-  last_name: z.string()
-    .min(1, 'Last name is required')
-    .min(2, 'Last name must be at least 2 characters')
-    .trim(),
-  role: z.string()
-    .min(1, 'Role is required')
-    .trim(),
-  plan: z.enum(USER_PLANS.map(p => p.value) as [string, ...string[]]),
-  company: z.enum(COMPANIES.map(c => c.value) as [string, ...string[]]),
-  email: z.string()
-    .min(1, 'Email is required')
-    .email('Invalid email address')
-    .trim(),
-  phone_number: z.string()
-    .min(1, 'Phone number is required')
-    .regex(/^\(\d{3}\)\s\d{3}-\d{4}$/, 'Phone number must be in format (555) 555-5555')
-    .trim(),
-  avatar_url: z.string().optional()
-})
-
-type UserSchema = z.infer<typeof userSchema>
-type ValidationErrors = Partial<Record<keyof UserSchema, string>>
 
 const props = defineProps<{
   open: boolean
@@ -57,7 +30,7 @@ const errors = ref<ValidationErrors>({})
 const isSubmitting = ref(false)
 
 // Initial form state
-const formData = ref<UserSchema>({
+const formData = ref<CreateUserSchema>({
   first_name: '',
   last_name: '',
   role: '',
@@ -68,23 +41,22 @@ const formData = ref<UserSchema>({
   avatar_url: '',
 })
 
-// handler for the phone input
-function handlePhoneInput(event: Event) {
-  const input = event.target as HTMLInputElement
-  const formattedValue = formatPhoneNumber(input.value)
-  formData.value.phone_number = formattedValue
-}
 
 //handler for adding an Avatar
 const handleAvatarUpdate = (url: string) => {
   formData.value.avatar_url = url
 }
 
+function handlePhoneInput(event: Event) {
+  const input = event.target as HTMLInputElement
+  formData.value.phone_number = formatPhoneNumber(input.value)
+}
+
 // Validate single field
-const validateField = (field: keyof UserSchema, value: string) => {
+const validateField = (field: keyof CreateUserSchema, value: string) => {
   try {
     const singleFieldSchema = z.object({
-      [field]: userSchema.shape[field]
+      [field]: createUserSchema.shape[field]
     })
 
     singleFieldSchema.parse({ [field]: value })
@@ -99,24 +71,24 @@ const validateField = (field: keyof UserSchema, value: string) => {
 // Validate entire form
 const validateForm = () => {
   try {
-    const dataToValidate: UserSchema = {
+    const dataToValidate: CreateUserSchema = {
       first_name: formData.value.first_name.trim(),
       last_name: formData.value.last_name.trim(),
       role: formData.value.role?.trim() || '',
       plan: formData.value.plan,
       company: formData.value.company,
       email: formData.value.email.trim(),
-      phone_number: formData.value.phone_number.trim(),
+      phone_number: formData.value.phone_number,
       avatar_url: formData.value.avatar_url?.trim(),
     }
 
-    userSchema.parse(dataToValidate)
+    createUserSchema.parse(dataToValidate)
     errors.value = {}
     return true
   } catch (error) {
     if (error instanceof z.ZodError) {
       errors.value = error.errors.reduce((acc, curr) => {
-        const field = curr.path[0] as keyof UserSchema
+        const field = curr.path[0] as keyof CreateUserSchema
         acc[field] = curr.message
         return acc
       }, {} as ValidationErrors)
@@ -167,7 +139,7 @@ const handleSubmit = async () => {
 }
 
 // Handle input blur for real time validation
-const handleBlur = (field: keyof UserSchema) => {
+const handleBlur = (field: keyof CreateUserSchema) => {
   if (!!formData.value[field]) {
     validateField(field, formData.value[field])
   }
@@ -218,19 +190,6 @@ const handleBlur = (field: keyof UserSchema) => {
           </span>
         </FormField>
 
-        <FormField label="Role:" required>
-          <Input
-            v-model="formData.role"
-            class="bg-white"
-            :class="cn(errors.role && 'border-destructive')"
-            placeholder="e.g. Developer, Manager, Designer"
-            @blur="handleBlur('role')"
-          />
-          <span v-if="errors.role" class="text-xs text-destructive">
-            {{ errors.role }}
-          </span>
-        </FormField>
-
         <FormField label="Plan:" required>
           <Select
             v-model="formData.plan"
@@ -257,6 +216,19 @@ const handleBlur = (field: keyof UserSchema) => {
           </span>
         </FormField>
 
+        <FormField label="Role:" required class="py-0">
+          <Input
+            v-model="formData.role"
+            class="bg-white"
+            :class="cn(errors.role && 'border-destructive')"
+            placeholder="e.g. Developer, Manager, Designer"
+            @blur="handleBlur('role')"
+          />
+          <span v-if="errors.role" class="text-xs text-destructive">
+            {{ errors.role }}
+          </span>
+        </FormField>
+
         <FormField label="Email:" required>
           <Input
             v-model="formData.email"
@@ -278,6 +250,7 @@ const handleBlur = (field: keyof UserSchema) => {
             :class="{ 'border-destructive': errors.phone_number }"
             @input="handlePhoneInput"
             @blur="handleBlur('phone_number')"
+            maxlength="14"
           />
           <span v-if="errors.phone_number" class="text-xs text-destructive">
             {{ errors.phone_number }}
