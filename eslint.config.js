@@ -29,7 +29,8 @@ export default [
     },
     rules: {
       ...tseslint.configs['recommended'].rules,
-      '@typescript-eslint/no-explicit-any': 'off'
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off'
     },
   },
 
@@ -52,7 +53,8 @@ export default [
     rules: {
       ...tseslint.configs['recommended'].rules,
       'vue/script-setup-uses-vars': 'error',
-      '@typescript-eslint/no-explicit-any': 'off'
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off'
     },
     globals: {
       ...globals.browser,

@@ -105,6 +105,7 @@
           <Button
             @click="handleFilter"
             class="px-8"
+            data-testid="apply-filter-button"
           >
             Filter
           </Button>

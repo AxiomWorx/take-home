@@ -1,22 +1,22 @@
 <script setup lang="ts">
-defineOptions({
-  name: 'FormField'
-})
+  defineOptions({
+    name: 'FormField'
+  })
 
-const props = defineProps({
-  label: {
-    type: String,
-    required: true
-  },
-  required: {
-    type: Boolean,
-    default: false
-  },
-  gutter: {
-    type: Boolean,
-    default: false
-  }
-})
+  const props = defineProps({
+    label: {
+      type: String,
+      required: true
+    },
+    required: {
+      type: Boolean,
+      default: false
+    },
+    gutter: {
+      type: Boolean,
+      default: false
+    }
+  })
 </script>
 
 <template>

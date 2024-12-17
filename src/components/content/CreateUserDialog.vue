@@ -14,7 +14,6 @@ import { cn, formatPhoneNumber } from '@/lib/utils'
 import Avatar from '../ui/avatar/Avatar.vue'
 import { createUserSchema, type CreateUserSchema, type ValidationErrors } from '../../lib/schemas'
 
-
 const props = defineProps<{
   open: boolean
 }>()
@@ -147,8 +146,8 @@ const handleBlur = (field: keyof CreateUserSchema) => {
 </script>
 
 <template>
-  <Dialog :open="open" @update:open="emit('update:open', $event)" class="">
-    <DialogContent class="lg:max-w-[45rem] max-h-[90vh] flex flex-col">
+  <Dialog :open="open" @update:open="emit('update:open', $event)">
+    <DialogContent class="lg:max-w-[45rem] max-h-[90vh] flex flex-col" aria-describedby="Create a new user">
       <DialogHeader>
         <DialogTitle>Create New User</DialogTitle>
       </DialogHeader>

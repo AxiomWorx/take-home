@@ -129,7 +129,7 @@
     </div>
 
     <Dialog v-model:open="isDialogOpen">
-      <DialogContent class="sm:max-w-md">
+      <DialogContent class="sm:max-w-md" aria-describedby="Upload an Avatar image">
         <DialogHeader>
           <DialogTitle>Update avatar image</DialogTitle>
         </DialogHeader>

@@ -1,32 +1,32 @@
 <script setup lang="ts">
-  import { ref, watch } from 'vue'
-  import { z } from 'zod'
-  import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
-  import { Input } from '@/components/ui/input'
-  import { Button } from '@/components/ui/button'
-  import { Select } from '@/components/ui/select'
-  import { USER_PLANS, COMPANIES, type UserPlan, type UserCompany } from '@/lib/constants'
-  import FormField from './FormField.vue'
-  import { useUserStore } from '@/stores/user'
-  import { storeToRefs } from 'pinia'
-  import { useUsers } from '@/composables/useUsers'
-  import { SaveIcon }  from 'lucide-vue-next'
-  import Avatar from '../ui/avatar/Avatar.vue'
-  import { cn, formatPhoneNumber } from '@/lib/utils'
-  import DeleteUserButton from './DeleteUserButton.vue'
-  import { updateUserSchema, type UpdateUserSchema, type ValidationErrors } from '../../lib/schemas'
-  import { useToast } from '@/composables/useToast'
+import { ref, watch, computed } from 'vue'
+import { z } from 'zod'
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Select } from '@/components/ui/select'
+import { USER_PLANS, COMPANIES, type UserPlan, type UserCompany } from '@/lib/constants'
+import FormField from './FormField.vue'
+import { useUserStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
+import { useUsers } from '@/composables/useUsers'
+import { SaveIcon }  from 'lucide-vue-next'
+import Avatar from '../ui/avatar/Avatar.vue'
+import { cn, formatPhoneNumber } from '@/lib/utils'
+import DeleteUserButton from './DeleteUserButton.vue'
+import { updateUserSchema, type UpdateUserSchema, type ValidationErrors } from '../../lib/schemas'
+import { useToast } from '@/composables/useToast'
 
-  const userStore = useUserStore()
-  const { selectedUser } = storeToRefs(userStore)
-  const { updateUserMutation } = useUsers()
-  const { showSuccess, showError } = useToast()
+const userStore = useUserStore()
+const { selectedUser } = storeToRefs(userStore)
+const { updateUserMutation } = useUsers()
+const { showSuccess, showError } = useToast()
 
-  const errors = ref<ValidationErrors>({})
-  const isSubmitting = ref(false)
+const errors = ref<ValidationErrors>({})
+const isSubmitting = ref(false)
 
-  // Form state to copy the selected user data
-  const formData = ref<UpdateUserSchema>({
+// Form state to copy the selected user data
+const formData = ref<UpdateUserSchema>({
   first_name: '',
   last_name: '',
   role: '',
@@ -37,9 +37,11 @@
   avatar_url: ''
 })
 
+const deleteButtonUser = computed(() => selectedUser.value || null)
+
+
 // Watch for update to formData when selectedUser changes
-watch(selectedUser, (newUser) => {
-   console.log('Selected User Data:', newUser)
+watch(() => selectedUser.value, (newUser) => {
   if (newUser) {
     formData.value = {
       first_name: newUser.first_name || '',
@@ -193,6 +195,7 @@ watch(selectedUser, (newUser) => {
             <FormField label="First Name:" required gutter>
               <Input
                 v-model="formData.first_name"
+                data-testid="first-name-input"
                 class="bg-white"
                 :class="{ 'border-destructive': errors.first_name }"
                 :disabled="!selectedUser"
@@ -206,6 +209,7 @@ watch(selectedUser, (newUser) => {
             <FormField label="Last Name:" required gutter>
               <Input
                 v-model="formData.last_name"
+                data-testid="last-name-input"
                 class="bg-white"
                 :class="{ 'border-destructive': errors.last_name }"
                 :disabled="!selectedUser"
@@ -260,6 +264,7 @@ watch(selectedUser, (newUser) => {
             <FormField label="Email:" required gutter>
               <Input
                 v-model="formData.email"
+                data-testid="email-input"
                 class="bg-white"
                 :class="{ 'border-destructive': errors.email }"
                 :disabled="!selectedUser"
@@ -292,14 +297,14 @@ watch(selectedUser, (newUser) => {
     </CardContent>
     <CardFooter class="flex justify-between items-center pt-4">
       <DeleteUserButton
-        :user="selectedUser"
+        :user="deleteButtonUser"
         @deleted="handleUserDeleted"
       />
-
       <Button
         class="w-60"
         @click="handleSave"
         :disabled="isSubmitting || Object.keys(errors).length > 0 || !selectedUser"
+        data-testid="save-button"
       >
         <SaveIcon />
         {{ isSubmitting ? 'Saving...' : 'Save' }}

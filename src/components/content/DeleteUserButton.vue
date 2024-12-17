@@ -16,7 +16,7 @@
   import type { User } from '@/lib/types'
 
   interface Props {
-    user: User | null
+    user: User | null | undefined
     onDeleted?: () => void
   }
 
@@ -65,7 +65,7 @@
     </Button>
 
     <AlertDialog v-model:open="isDeleteDialogOpen">
-      <AlertDialogContent>
+      <AlertDialogContent aria-describedby="Confirm delete user">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
