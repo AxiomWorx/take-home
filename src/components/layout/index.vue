@@ -1,0 +1,35 @@
+<script setup lang="ts">
+  import { watchEffect } from 'vue'
+  import DesktopSidebar from './DesktopSidebar.vue'
+  import MobileSidebar from './ModbileSidebar.vue'
+  import { useUsers } from '@/composables/useUsers'
+  import { useUserStore } from '@/stores/user'
+
+  const { usersQuery } = useUsers()
+  const userStore = useUserStore()
+
+  watchEffect(() => {
+    if (usersQuery.data.value) {
+      userStore.setUsers(usersQuery.data.value)
+    }
+  })
+
+
+</script>
+
+<template>
+  <div class="min-h-screen flex">
+    <DesktopSidebar />
+    <MobileSidebar />
+
+    <main class="flex-1 min-w-0 bg-background">
+      <div class="flex h-screen">
+        <div class="flex-1 min-w-0 p-6 overflow-auto">
+          <slot name="content">
+          </slot>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</template>
